@@ -25,6 +25,8 @@ inputs:
     description: "The minimum access level of the symbols which should be included (public, internal, or private)"
     required: false
     default: "public"
+  excluded-symbols:
+    description: "File containing a list of symbols to exclude from the generated documenttion"
 
 runs:
   using: "docker"
@@ -42,7 +44,9 @@ runs:
       --output,
       "${{ inputs.output }}",
       --minimum-access-level,
-      "${{ inputs.minimum-access-level }}"
+      "${{ inputs.minimum-access-level }}",
+      --excluded-symbols,
+      "${{ inputs.excluded-symbols }}"
     ]
 
 branding:

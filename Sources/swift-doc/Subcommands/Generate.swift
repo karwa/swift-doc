@@ -39,6 +39,10 @@ extension SwiftDoc {
       @Option(name: .long,
               help: "The minimum access level of the symbols included in generated documentation.")
       var minimumAccessLevel: AccessLevel = .public
+
+      @Option(name: .customLong("excluded-symbols"),
+              help: "A file containing a line separated list of symbols to be excluded from the generated documentation")
+      var exclusionsFilePath: String?
     }
 
     static var configuration = CommandConfiguration(abstract: "Generates Swift documentation")
@@ -56,7 +60,7 @@ extension SwiftDoc {
         }
       }
 
-      let module = try Module(name: options.moduleName, paths: options.inputs)
+      let module = try Module(name: options.moduleName, paths: options.inputs, exclusionsFilePath: options.exclusionsFilePath)
       let baseURL = options.baseURL
 
       let outputDirectoryURL = URL(fileURLWithPath: options.output)
