@@ -42,22 +42,23 @@ struct Relationships: Component {
     }
 
     var graphHTML: HypertextLiteral.HTML? {
-        var graph = symbol.graph(in: module, baseURL: baseURL, includingChildren: symbolFilter)
-        guard !graph.edges.isEmpty else { return nil }
-
-        graph.aspectRatio = 0.125
-        graph.center = true
-        graph.overlap = "compress"
-
-        let algorithm: LayoutAlgorithm = graph.nodes.count > 3 ? .neato : .dot
-
-        do {
-            let data = try _await { graph.render(using: algorithm, to: .svg, completion: $0) }
-            return SVG(String(data: data, encoding: .utf8) ?? "")
-        } catch {
-            logger.warning("Failed to generate relationship graph for \(symbol.id). Please ensure that GraphViz binaries are accessible from your PATH. (\(error))")
-            return nil
-        }
+        return nil
+//        var graph = symbol.graph(in: module, baseURL: baseURL, includingChildren: symbolFilter)
+//        guard !graph.edges.isEmpty else { return nil }
+//
+//        graph.aspectRatio = 0.125
+//        graph.center = true
+//        graph.overlap = "compress"
+//
+//        let algorithm: LayoutAlgorithm = graph.nodes.count > 3 ? .neato : .dot
+//
+//        do {
+//            let data = try _await { graph.render(using: algorithm, to: .svg, completion: $0) }
+//            return SVG(String(data: data, encoding: .utf8) ?? "")
+//        } catch {
+//            logger.warning("Failed to generate relationship graph for \(symbol.id). Please ensure that GraphViz binaries are accessible from your PATH. (\(error))")
+//            return nil
+//        }
     }
 
     var sections: [(title: String, symbols: [Symbol])] {
