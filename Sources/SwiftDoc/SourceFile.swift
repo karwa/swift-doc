@@ -21,10 +21,10 @@ public struct SourceFile: Hashable, Codable {
 
     public let imports: [Import]
 
-    public init(file url: URL, relativeTo directory: URL) throws {
+    public init(file url: URL, relativeTo directory: URL, excludedSymbols: [String] = []) throws {
         self.path = url.path(relativeTo: directory)
 
-        let visitor = try Visitor(file: url, relativeTo: directory)
+        let visitor = try Visitor(file: url, relativeTo: directory, excludedSymbols: excludedSymbols)
 
         self.symbols = visitor.visitedSymbols
         self.imports = visitor.visitedImports
@@ -40,9 +40,11 @@ public struct SourceFile: Hashable, Codable {
 
         let fileURL: URL
         let sourceLocationConverter: SourceLocationConverter
+        let excludedSymbols: [String]
 
-        init(file url: URL, relativeTo directory: URL) throws {
+        init(file url: URL, relativeTo directory: URL, excludedSymbols: [String] = []) throws {
             self.fileURL = url
+            self.excludedSymbols = excludedSymbols
 
             let tree = try SyntaxParser.parse(url)
             sourceLocationConverter = SourceLocationConverter(file: url.path(relativeTo: directory), tree: tree)
@@ -72,9 +74,13 @@ public struct SourceFile: Hashable, Codable {
             return highlighter.tokens
         }
 
-        func push(_ symbol: Symbol?) {
-            guard let symbol = symbol else { return }
-            visitedSymbols.append(symbol)
+      	@discardableResult
+        func push(_ symbol: Symbol?) -> Bool {
+            guard let symbol = symbol else { return true }
+          	let excluded = excludedSymbols.contains(symbol.id.description)
+            if !excluded {
+              visitedSymbols.append(symbol)
+            }
 
             switch symbol.api {
             case is Class,
@@ -83,8 +89,9 @@ public struct SourceFile: Hashable, Codable {
                  is Structure:
                 context.append(symbol)
             default:
-                return
+                break
             }
+            return !excluded
         }
 
         func push(_ extension: Extension) {
@@ -112,13 +119,11 @@ public struct SourceFile: Hashable, Codable {
         }
 
         override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
-            push(symbol(Class.self, node))
-            return .visitChildren
+            return push(symbol(Class.self, node)) ? .visitChildren : .skipChildren
         }
 
         override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-            push(symbol(Enumeration.self, node))
-            return .visitChildren
+            return push(symbol(Enumeration.self, node)) ? .visitChildren : .skipChildren
         }
 
         override func visit(_ node: EnumCaseDeclSyntax) -> SyntaxVisitorContinueKind {
@@ -179,8 +184,7 @@ public struct SourceFile: Hashable, Codable {
         }
 
         override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
-            push(symbol(Protocol.self, node))
-            return .visitChildren
+            return push(symbol(Protocol.self, node)) ? .visitChildren : .skipChildren
         }
 
         override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
@@ -189,8 +193,7 @@ public struct SourceFile: Hashable, Codable {
         }
 
         override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-            push(symbol(Structure.self, node))
-            return .visitChildren
+            return push(symbol(Structure.self, node)) ? .visitChildren : .skipChildren
         }
 
         override func visit(_ node: TypealiasDeclSyntax) -> SyntaxVisitorContinueKind {

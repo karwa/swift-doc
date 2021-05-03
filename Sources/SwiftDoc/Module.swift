@@ -12,7 +12,7 @@ public final class Module {
         self.sourceFiles = sourceFiles
 
         let imports = sourceFiles.flatMap { $0.imports }
-        let symbols = sourceFiles.flatMap { $0.symbols }.filter({ !exclusions.contains($0.name) })
+        let symbols = sourceFiles.flatMap { $0.symbols }.filter({ !exclusions.contains($0.id.description) })
         self.interface = Interface(imports: imports, symbols: symbols)
     }
 
@@ -54,7 +54,9 @@ public final class Module {
         if let exclusionsFilePath = exclusionsFilePath {
           excludedSymbols = try String(contentsOfFile: exclusionsFilePath).components(separatedBy: "\n").filter { !$0.isEmpty }
         }
-        let sourceFiles = try sources.parallelMap { try SourceFile(file: $0.file, relativeTo: $0.directory) }
+        let sourceFiles = try sources.parallelMap {
+          try SourceFile(file: $0.file, relativeTo: $0.directory, excludedSymbols: excludedSymbols)
+        }
 
         self.init(name: name, sourceFiles: sourceFiles, exclusions: excludedSymbols)
     }
