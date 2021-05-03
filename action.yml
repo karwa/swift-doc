@@ -30,7 +30,7 @@ inputs:
 
 runs:
   using: "docker"
-  image: "docker://swiftdoc/swift-doc:latest"
+  image: "Dockerfile"
   args:
     [
       generate,
