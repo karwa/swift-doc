@@ -42,7 +42,7 @@ struct FooterPage: Page {
 
         return #"""
         <p>
-            Generated on <time datetime=\#(timestamp)>\#(dateString)</time> using <a href=\#(href)>swift-doc</a> <span class="version">\#(SwiftDoc.configuration.version)</span>.
+            Generated on <time datetime=\#(timestamp)>\#(dateString)</time> using a fork of <a href=\#(href)>swift-doc</a> <span class="version">\#(SwiftDoc.configuration.version)</span>.
         </p>
         """#
     }
