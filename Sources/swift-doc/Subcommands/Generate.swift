@@ -164,6 +164,6 @@ extension SwiftDoc {
 }
 
 func fetchRemoteCSS() throws -> Data {
-  let url = URL(string: "https://raw.githubusercontent.com/SwiftDocOrg/swift-doc/master/Resources/all.min.css")!
+  let url = URL(string: "https://raw.githubusercontent.com/karwa/swift-doc/master/Sources/swift-doc/Resources/all.min.css")!
   return try Data(contentsOf: url)
 }
